@@ -14,8 +14,9 @@ public enum SecureMessagingSupportedAlgorithms {
 }
 
 #if !os(macOS)
+//#if canImport(CoreNFC)
 import CoreNFC
-
+//#endif
 
 /// This class implements the secure messaging protocol.
 /// The class is a new layer that comes between the reader and the iso7816.

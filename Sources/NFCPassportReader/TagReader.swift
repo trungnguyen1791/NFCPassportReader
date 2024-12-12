@@ -9,9 +9,10 @@
 import Foundation
 
 #if !os(macOS)
+//#if canImport(CoreNFC)
 import CoreNFC
-
-@available(iOS 15, *)
+//#endif
+@available(iOS 13, *)
 public class TagReader {
     var tag : NFCISO7816Tag
     var secureMessaging : SecureMessaging?

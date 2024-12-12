@@ -10,10 +10,12 @@ import OpenSSL
 import CryptoTokenKit
 
 #if !os(macOS)
+//#if canImport(CoreNFC)
 import CoreNFC
+//#endif
 import CryptoKit
 
-@available(iOS 15, *)
+@available(iOS 13, *)
 private enum PACEHandlerError {
     case DHKeyAgreementError(String)
     case ECDHKeyAgreementError(String)
@@ -27,14 +29,14 @@ private enum PACEHandlerError {
     }
 }
 
-@available(iOS 15, *)
+@available(iOS 13, *)
 extension PACEHandlerError: LocalizedError {
     public var errorDescription: String? {
         return NSLocalizedString(value, comment: "PACEHandlerError")
     }
 }
 
-@available(iOS 15, *)
+@available(iOS 13, *)
 public class PACEHandler {
     
     
@@ -372,7 +374,7 @@ public class PACEHandler {
 }
 
 // MARK - PACEHandler Utility functions
-@available(iOS 15, *)
+@available(iOS 13, *)
 extension PACEHandler {
     
     /// Does the DH key Mapping agreement

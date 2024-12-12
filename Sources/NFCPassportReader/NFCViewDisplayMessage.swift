@@ -14,6 +14,7 @@ public enum NFCViewDisplayMessage {
     case readingDataGroupProgress(DataGroupId, Int)
     case error(NFCPassportReaderError)
     case successfulRead
+    case retry
 }
 
 @available(iOS 13, macOS 10.15, *)
@@ -45,6 +46,8 @@ extension NFCViewDisplayMessage {
                 }
             case .successfulRead:
                 return "Passport read successfully"
+            case .retry:
+            return "Please tap your card again and hold it steady\nReconnecting..."
         }
     }
     

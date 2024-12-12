@@ -9,9 +9,10 @@
 import Foundation
 
 #if !os(macOS)
+//#if canImport(CoreNFC)
 import CoreNFC
-
-@available(iOS 15, *)
+//#endif
+@available(iOS 13, *)
 public class BACHandler {
     let KENC : [UInt8] = [0,0,0,1]
     let KMAC : [UInt8] = [0,0,0,2]

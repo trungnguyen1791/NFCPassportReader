@@ -10,9 +10,10 @@ import Foundation
 
 #if !os(macOS)
 import UIKit
+//#if canImport(CoreNFC)
 import CoreNFC
-
-@available(iOS 15, *)
+//#endif
+@available(iOS 13, *)
 public class PassportReader : NSObject {
     private typealias NFCCheckedContinuation = CheckedContinuation<NFCPassportModel, Error>
     private var nfcContinuation: NFCCheckedContinuation?
@@ -39,6 +40,7 @@ public class PassportReader : NSObject {
     private var masterListURL : URL?
     private var shouldNotReportNextReaderSessionInvalidationErrorUserCanceled : Bool = false
 
+    private var shouldRestartPolling: Bool = true
     // By default, Passive Authentication uses the new RFS5652 method to verify the SOD, but can be switched to use
     // the previous OpenSSL CMS verification if necessary
     public var passiveAuthenticationUsesOpenSSL : Bool = false
@@ -87,7 +89,7 @@ public class PassportReader : NSObject {
             // We are reading specific datagroups
             self.readAllDatagroups = false
         }
-        
+        shouldRestartPolling = true
         guard NFCNDEFReaderSession.readingAvailable else {
             throw NFCPassportReaderError.NFCNotSupported
         }
@@ -105,7 +107,7 @@ public class PassportReader : NSObject {
     }
 }
 
-@available(iOS 15, *)
+@available(iOS 13, *)
 extension PassportReader : NFCTagReaderSessionDelegate {
     // MARK: - NFCTagReaderSessionDelegate
     public func tagReaderSessionDidBecomeActive(_ session: NFCTagReaderSession) {
@@ -199,11 +201,22 @@ extension PassportReader : NFCTagReaderSessionDelegate {
                 self.invalidateSession(errorMessage: errorMessage, error: error)
             } catch let error {
 
-                nfcContinuation?.resume(throwing: error)
-                nfcContinuation = nil
-                Log.debug( "tagReaderSession:failed to connect to tag - \(error.localizedDescription)" )
-                let errorMessage = NFCViewDisplayMessage.error(NFCPassportReaderError.ConnectionError)
-                self.invalidateSession(errorMessage: errorMessage, error: NFCPassportReaderError.ConnectionError)
+                if shouldRestartPolling {
+                    Log.debug( "Reading - try restart polling")
+                    shouldRestartPolling = false
+                    
+                    self.updateReaderSessionMessage( alertMessage: NFCViewDisplayMessage.retry)
+//                    readerSession?.alertMessage = "Please tap your card again and hold it steady\nReconnecting..."
+                    
+                    try restartSession()
+                }else {
+                    nfcContinuation?.resume(throwing: error)
+                    nfcContinuation = nil
+                    Log.debug( "tagReaderSession:failed to connect to tag - \(error.localizedDescription)" )
+                    let errorMessage = NFCViewDisplayMessage.error(NFCPassportReaderError.ConnectionError)
+                    self.invalidateSession(errorMessage: errorMessage, error: NFCPassportReaderError.ConnectionError)
+                }
+               
             }
         }
     }
@@ -211,9 +224,14 @@ extension PassportReader : NFCTagReaderSessionDelegate {
     func updateReaderSessionMessage(alertMessage: NFCViewDisplayMessage ) {
         self.readerSession?.alertMessage = self.nfcViewDisplayMessageHandler?(alertMessage) ?? alertMessage.description
     }
+    
+    
+    private func restartSession() throws {
+        readerSession?.restartPolling()
+    }
 }
 
-@available(iOS 15, *)
+@available(iOS 13, *)
 extension PassportReader {
     
     func startReading(tagReader : TagReader) async throws -> NFCPassportModel {

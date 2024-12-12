@@ -13,7 +13,7 @@ import UIKit
 #endif
 
 
-public enum PassportAuthenticationStatus {
+@objc public enum PassportAuthenticationStatus:Int  {
     case notDone
     case success
     case failed
