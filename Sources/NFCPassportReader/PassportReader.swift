@@ -200,10 +200,9 @@ extension PassportReader : NFCTagReaderSessionDelegate {
                 let errorMessage = NFCViewDisplayMessage.error(error)
                 self.invalidateSession(errorMessage: errorMessage, error: error)
             } catch let error {
-<<<<<<< HEAD
 
                 if shouldRestartPolling {
-                    Log.debug( "Reading - try restart polling")
+                    Logger.passportReader.debug( "Reading - try restart polling")
                     shouldRestartPolling = false
                     
                     self.updateReaderSessionMessage( alertMessage: NFCViewDisplayMessage.retry)
@@ -211,18 +210,10 @@ extension PassportReader : NFCTagReaderSessionDelegate {
                     
                     try restartSession()
                 }else {
-                    nfcContinuation?.resume(throwing: error)
-                    nfcContinuation = nil
-                    Log.debug( "tagReaderSession:failed to connect to tag - \(error.localizedDescription)" )
+                    Logger.passportReader.debug( "tagReaderSession:failed to connect to tag - \(error.localizedDescription)" )
                     let errorMessage = NFCViewDisplayMessage.error(NFCPassportReaderError.ConnectionError)
-                    self.invalidateSession(errorMessage: errorMessage, error: NFCPassportReaderError.ConnectionError)
+                    self.invalidateSession(errorMessage: errorMessage, error: NFCPassportReaderError.Unknown(error))
                 }
-               
-=======
-                Logger.passportReader.debug( "tagReaderSession:failed to connect to tag - \(error.localizedDescription)" )
-                let errorMessage = NFCViewDisplayMessage.error(NFCPassportReaderError.ConnectionError)
-                self.invalidateSession(errorMessage: errorMessage, error: NFCPassportReaderError.Unknown(error))
->>>>>>> 84e11ec67a5c0d5ff54f918182fd4658801cc7f2
             }
         }
     }
