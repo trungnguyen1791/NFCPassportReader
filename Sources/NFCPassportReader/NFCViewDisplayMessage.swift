@@ -13,6 +13,7 @@ public enum NFCViewDisplayMessage {
     case authenticatingWithPassport(Int)
     case readingDataGroupProgress(DataGroupId, Int)
     case error(NFCPassportReaderError)
+    case activeAuthentication
     case successfulRead
     case retry
 }
@@ -44,6 +45,8 @@ extension NFCViewDisplayMessage {
                     default:
                         return "Sorry, there was a problem reading the passport. Please try again"
                 }
+            case .activeAuthentication:
+                return "Authenticating....."
             case .successfulRead:
                 return "Passport read successfully"
             case .retry:
